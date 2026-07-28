@@ -1,0 +1,62 @@
+{
+    "name": "@usetoolsuite/core",
+    "version": "0.1.0",
+    "description": "Zero-dependency developer-tool engines — cron parser, JSONPath, JSON→TypeScript, Base64, diff, subnet calculator and more. The open-source core of usetoolsuite.com.",
+    "keywords": [
+        "cron",
+        "cron-parser",
+        "jsonpath",
+        "json-to-typescript",
+        "json-schema",
+        "base64",
+        "diff",
+        "subnet-calculator",
+        "chmod",
+        "slug",
+        "uuid",
+        "developer-tools",
+        "zero-dependency"
+    ],
+    "homepage": "https://usetoolsuite.com",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/usetoolsuite/toolsuite-core.git"
+    },
+    "bugs": "https://github.com/usetoolsuite/toolsuite-core/issues",
+    "license": "MIT",
+    "author": "UseToolSuite (https://usetoolsuite.com)",
+    "type": "module",
+    "sideEffects": false,
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./*": {
+            "types": "./dist/*.d.ts",
+            "default": "./dist/*.js"
+        }
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "engines": {
+        "node": ">=18"
+    },
+    "scripts": {
+        "build": "tsc -p tsconfig.build.json",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "typecheck": "tsc --noEmit",
+        "prepublishOnly": "npm run test && npm run build"
+    },
+    "devDependencies": {
+        "@types/node": "^26.1.2",
+        "typescript": "^5.5.0",
+        "vitest": "^2.0.0"
+    }
+}

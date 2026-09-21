@@ -33,10 +33,32 @@ function generateV1(): string {
     return `${hex(timeLow, 8)}-${hex(timeMid, 4)}-${hex(timeHi, 4)}-${hex(clockSeq[0], 2)}${hex(clockSeq[1], 2)}-${Array.from(node).map(b => hex(b, 2)).join('')}`;
 }
 
+// RFC 9562 §6.2 monotonic counter. Without one, every v7 generated inside the
+// same millisecond shares a timestamp and differs only in random bits, so a
+// batch does not sort — which defeats the only reason to choose v7 over v4.
+// The 12 bits of rand_a hold a counter that increments while the clock stands
+// still, reseeded from random data whenever the millisecond advances.
+let v7LastMs = -1;
+let v7Counter = 0;
+
 function generateV7(): string {
     const now = Date.now();
     const bytes = new Uint8Array(16);
     crypto.getRandomValues(bytes);
+
+    if (now === v7LastMs) {
+        v7Counter++;
+        if (v7Counter > 0xFFF) {
+            // Counter exhausted inside one millisecond: wait for the clock so
+            // ordering is never violated. 4096 ids/ms is far above real use.
+            while (Date.now() === v7LastMs) { /* spin briefly */ }
+            return generateV7();
+        }
+    } else {
+        v7LastMs = now;
+        // Seed low so a burst has room to count up without overflowing.
+        v7Counter = ((bytes[6] & 0x0F) << 4) | (bytes[7] & 0x0F);
+    }
 
     bytes[0] = (now / 2 ** 40) & 0xFF;
     bytes[1] = (now / 2 ** 32) & 0xFF;
@@ -45,8 +67,10 @@ function generateV7(): string {
     bytes[4] = (now / 2 ** 8) & 0xFF;
     bytes[5] = now & 0xFF;
 
-    bytes[6] = (bytes[6] & 0x0F) | 0x70;
-    bytes[8] = (bytes[8] & 0x3F) | 0x80;
+    // version 7 in the high nibble, then the 12-bit counter
+    bytes[6] = 0x70 | ((v7Counter >> 8) & 0x0F);
+    bytes[7] = v7Counter & 0xFF;
+    bytes[8] = (bytes[8] & 0x3F) | 0x80;   // RFC 4122 variant
 
     const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
     return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;

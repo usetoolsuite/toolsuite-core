@@ -9,7 +9,7 @@
 These are the exact engines that power the free tools at **[usetoolsuite.com](https://usetoolsuite.com)** — every tool there runs 100% in your browser, and this package is that logic, extracted and published so you can use it anywhere.
 
 - **Zero runtime dependencies.** Nothing to audit but this repo.
-- **Isomorphic.** No DOM, no Node built-ins — works in browsers, Node ≥18, Deno, Bun, edge runtimes.
+- **Isomorphic.** No DOM, no Node built-ins — works in browsers, Node ≥20, Deno, Bun, edge runtimes. (The UUID and password engines use Web Crypto, which Node only exposes as a global from v19.)
 - **Tree-shakeable.** ESM with `sideEffects: false`, plus per-module subpath imports.
 - **Typed.** Written in strict TypeScript, ships `.d.ts`.
 

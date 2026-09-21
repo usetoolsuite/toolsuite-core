@@ -10,7 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        # Node 18 is EOL (April 2025) and, more concretely, does not expose
+        # globalThis.crypto unflagged — that only landed in Node 19. The UUID
+        # and password engines are built on Web Crypto, so 18 cannot run them.
+        node-version: [20, 22, 24]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
